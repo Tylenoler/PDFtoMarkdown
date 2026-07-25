@@ -1,0 +1,5 @@
+PyMuPDF>=1.25.0,<2.0.0
+paddlepaddle-gpu>=3.0.0
+paddleocr>=2.9.0
+Flask>=3.0.0
+Werkzeug>=3.0.0
