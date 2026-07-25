@@ -12,47 +12,40 @@ import sys
 import os
 from pathlib import Path
 
-
-# ── Find PaddleOCR package data ───────────────────────────────────────
-def _paddle_pkg_data():
-    """Return (source_dir, target_dir) tuples for PaddleOCR data files."""
-    import paddleocr
-
-    pkg = Path(paddleocr.__file__).parent
-    data = []
-    # fonts, configs, etc.
-    for sub in ["ppocr", "ppstructure"]:
-        src = pkg / sub
-        if src.is_dir():
-            data.append((str(src), sub))
-    return data
+# Spec file dir — PyInstaller runs this via exec(), __file__ not available
+_SPEC_DIR = Path(os.path.dirname(os.path.abspath("build.spec")))
 
 
-# ── Options ───────────────────────────────────────────────────────────
 block_cipher = None
 
 a = Analysis(
     ["pdf2md.py"],
-    pathex=[os.path.dirname(os.path.abspath(__file__))],
+    pathex=[str(_SPEC_DIR)],
     binaries=[],
-    datas=[(str(p), t) for p, t in _paddle_pkg_data()],
+    datas=[],
     hiddenimports=[
-        "paddleocr",
-        "paddle",
-        "paddle.nn",
-        "paddle.nn.functional",
-        "paddle.tensor",
-        "paddle.fluid",
-        "paddle.fluid.core",
-        "paddleocr.ppocr",
-        "paddleocr.ppstructure",
-        "paddleocr.tools",
+        # core app
+        "pdf2md",
+        "pdf2md.cli",
+        "pdf2md.web",
+        "pdf2md.gui",
+        "pdf2md.converter",
+        "pdf2md.extractor.pdf_reader",
+        "pdf2md.extractor.ocr_engine",
+        "pdf2md.extractor.model_manager",
+        "pdf2md.aligner.matcher",
+        "pdf2md.aligner.sorter",
+        "pdf2md.generator.markdown",
+        "pdf2md.utils.helpers",
+        # deps
         "fitz",
         "flask",
         "webview",
         "werkzeug",
-        "numpy",
+        "paddleocr",
+        "paddle",
         "cv2",
+        "numpy",
         "PIL",
         "PIL._imaging",
         "PIL.Image",
@@ -92,16 +85,15 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,          # no console window for GUI mode
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=None,             # can add a .ico later
+    icon=None,
 )
 
-# Also produce a console variant for CLI mode
 exe_console = EXE(
     pyz,
     a.scripts,

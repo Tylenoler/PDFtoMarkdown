@@ -23,3 +23,12 @@ Thumbs.db
 # Distribution
 dist/
 *.egg-info/
+
+# Build artifacts
+build/
+__pycache__/
+
+# PyInstaller
+*.spec
+!build.spec
+*.pkg
