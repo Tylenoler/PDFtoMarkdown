@@ -16,6 +16,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "input",
         type=str,
+        nargs="?",
+        default=None,
         help="PDF file or directory containing PDFs (use --batch for directories)",
     )
     parser.add_argument(
@@ -49,13 +51,22 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--web",
         action="store_true",
-        help="Start Web UI instead of CLI mode",
+        help="Start Web UI (open in browser) instead of CLI mode",
+    )
+    parser.add_argument(
+        "--gui",
+        action="store_true",
+        help="Start native desktop GUI window",
     )
     return parser
 
 
 def run_cli(args: argparse.Namespace) -> int:
     """Execute CLI conversion based on parsed arguments."""
+    if args.input is None:
+        print("Error: input file or directory required for CLI mode")
+        return 1
+
     input_path = Path(args.input)
 
     if not input_path.exists():
@@ -93,8 +104,12 @@ def run_cli(args: argparse.Namespace) -> int:
 
 def main():
     parser = build_parser()
-    # Accept args from sys.argv or override for testing
     args = parser.parse_args()
+
+    if args.gui:
+        from pdf2md.gui import start_gui
+        start_gui()
+        return
 
     if args.web:
         from pdf2md.web import start_web
